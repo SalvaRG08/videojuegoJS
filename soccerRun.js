@@ -24,13 +24,15 @@ window.onload = function() {
 	
 	  this.x = x_;
 	  this.y = y_;
-	  this.animacionFutbolista = [[0,0],[32,0],
-	                             [0,65],[32,65],
-								 [0,95],[32,95],
-								 [0,32],[32,32]];
+		this.animacionFutbolista = [
+			[0, 210], [54, 210],   // Derecha
+			[0, 90], [51, 90], // Izquierda
+			[0, 195], [32, 195], // Arriba
+			[0, 260], [32, 260]  // Abajo
+		];
 	  this.velocidad = 1.4;
-	  this.tamañoX   = 30;
-	  this.tamañoY   = 30;	  
+	  this.tamañoX   = 23;
+	  this.tamañoY   = 40;	  
 	
 	}
 	
@@ -129,8 +131,8 @@ window.onload = function() {
 		
 		if (xDerecha)   inicial = 0;
 		if (xIzquierda) inicial = 2;
-		if (yUp) inicial = 4;
-		if (yDown) inicial = 6;
+		/* if (yUp) inicial = 4;
+		if (yDown) inicial = 6; */
 		
 		posicion = inicial + (posicion + 1) % 2;
 	}
@@ -196,7 +198,7 @@ window.onload = function() {
 
 	id= setInterval(pintaFutbolista, 1000/50);	
 
-	id = setInterval(alternarAnimacionMovimiento, 1000/8);
+	id = setInterval(alternarAnimacionMovimiento, 1000/5);
 
 
 }
