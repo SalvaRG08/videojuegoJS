@@ -19,7 +19,8 @@ window.onload = function () {
     let inicial = 0;
 
     let miFutbolista;
-    let imagen;
+    let imagenPersonaje;
+    let imagenCampo;
 
     let todosLosObstaculos = [];
 
@@ -31,8 +32,8 @@ window.onload = function () {
         this.animacionFutbolista = [
             [0, 210], [54, 210],
             [0, 90], [51, 90],
-            [0, 195], [32, 195],
-            [0, 260], [32, 260],
+            [30, 210], [30, 210],
+            [27, 90], [27, 90],
         ];
         this.velocidad = 1.4;
         this.tamañoX = 23;
@@ -46,6 +47,9 @@ window.onload = function () {
         this.haAcabado = false;
     }
 
+    imagenCampo = new Image();
+    imagenCampo.src = "assets/sprite/Pitch.png";
+    
 	// ---------------------- Codigo futbolista ---------------------- //
 
     Futbolista.prototype.generaPosicionDerecha = function () {
@@ -72,7 +76,7 @@ window.onload = function () {
         if (yDown) miFutbolista.generaPosicionAbajo();
 
         ctx.drawImage(
-            miFutbolista.imagen,
+            miFutbolista.imagenPersonaje,
             miFutbolista.animacionFutbolista[posicion][0],
             miFutbolista.animacionFutbolista[posicion][1],
             miFutbolista.tamañoX,
@@ -85,9 +89,19 @@ window.onload = function () {
     }
 
     function alternarAnimacionMovimiento() {
-        if (xDerecha) inicial = 0;
-        if (xIzquierda) inicial = 2;
+        if (xDerecha) {
+            inicial = 0;
+        } else if (xIzquierda) {
+            inicial = 2;
+        } else if (yUp || yDown) {
+            inicial = (inicial == 4) ? 0 : (inicial == 6) ? 2 : inicial;
+        } else if (!xDerecha && !xIzquierda && !yUp && !yDown) {
+            inicial = (inicial == 0) ? 4 : (inicial == 2) ? 6 : inicial;
+        }
+    
         posicion = inicial + (posicion + 1) % 2;
+    
+        console.log(inicial);
     }
 
 	// ---------------------- Codigo obstaculos ---------------------- //
@@ -114,6 +128,7 @@ window.onload = function () {
 
     function animar() {
         ctx.clearRect(0, 0, 600, 400);
+        ctx.drawImage(imagenCampo, 0, 0, 600, 400); 
 
         ctx.fillStyle = "#FF0000";
         todosLosObstaculos.forEach((obstaculo) => {
@@ -152,9 +167,9 @@ window.onload = function () {
     canvas = document.getElementById("miCanvas");
     ctx = canvas.getContext("2d");
 
-    imagen = new Image();
-    imagen.src = "assets/sprite/Characters.png";
-    Futbolista.prototype.imagen = imagen;
+    imagenPersonaje = new Image();
+    imagenPersonaje.src = "assets/sprite/Characters.png";
+    Futbolista.prototype.imagenPersonaje = imagenPersonaje;
 
     miFutbolista = new Futbolista(x, y);
 
@@ -162,7 +177,7 @@ window.onload = function () {
 
     setInterval(animar, 1000 / 30);
 
-    setInterval(alternarAnimacionMovimiento, 1000 / 5);
+    setInterval(alternarAnimacionMovimiento, 1000 / 6);
 };
 
 
