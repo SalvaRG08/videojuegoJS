@@ -1,3 +1,5 @@
+// ---------------------- SOCCER RUN GAME ---------------------- //
+
 window.onload = function () {
 
     const TOPEIZQUIERDA = 0;
