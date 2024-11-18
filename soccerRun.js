@@ -5,8 +5,6 @@ window.onload = function () {
     const TOPEABAJO = 360;
 
     const NUMEROOBSTACULOS = 5;
-    const TAMAÑOOBSTACULOX = 25;
-    const TAMAÑOOBSTACULOY = 25;
 
     let x = 100;
     let y = 350;
@@ -35,9 +33,10 @@ window.onload = function () {
             [30, 210], [30, 210],
             [27, 90], [27, 90],
         ];
-        this.velocidad = 1.4;
+        this.velocidad = 2;
         this.tamañoX = 23;
         this.tamañoY = 40;
+        this.vidas = 2;
     }
 
     function Obstaculos(x_2, y_2, velocidad_2) {
@@ -45,10 +44,12 @@ window.onload = function () {
         this.y = y_2;
         this.velocidad = velocidad_2;
         this.haAcabado = false;
+        this.tamañoX = 25;
+        this.tamañoY = 25;
     }
 
     imagenCampo = new Image();
-    imagenCampo.src = "assets/sprite/Pitch.png";
+    imagenCampo.src = "assets/sprite/Pitch2.png";
     
 	// ---------------------- Codigo futbolista ---------------------- //
 
@@ -101,13 +102,12 @@ window.onload = function () {
     
         posicion = inicial + (posicion + 1) % 2;
     
-        console.log(inicial);
     }
 
 	// ---------------------- Codigo obstaculos ---------------------- //
 
     Obstaculos.prototype.pintarObstaculos = function () {
-        ctx.fillRect(this.x, this.y, TAMAÑOOBSTACULOX, TAMAÑOOBSTACULOY);
+        ctx.fillRect(this.x, this.y, this.tamañoX, this.tamañoY);
     };
 
     Obstaculos.prototype.moverObstaculo = function () {
@@ -124,6 +124,49 @@ window.onload = function () {
         }
     }
 
+    // ---------------------- Colision de personaje ---------------------- //
+
+    function colisionFubolista() {
+
+        let bordeIzqF = miFutbolista.x;
+        let bordeDerF = miFutbolista.x + miFutbolista.tamañoX;
+        let bordeDownF = miFutbolista.y;
+        let bordeUpF = miFutbolista.y + miFutbolista.tamañoY;
+    
+        for (let i = 0; i < todosLosObstaculos.length; i++) {
+            let bordeIzqO = todosLosObstaculos[i].x;
+            let bordeDerO = todosLosObstaculos[i].x + todosLosObstaculos[i].tamañoX;
+            let bordeDownO = todosLosObstaculos[i].y;
+            let bordeUpO = todosLosObstaculos[i].y + todosLosObstaculos[i].tamañoY;
+    
+            if (
+                bordeDerF > bordeIzqO &&
+                bordeIzqF < bordeDerO &&
+                bordeUpF > bordeDownO &&
+                bordeDownF < bordeUpO
+            ) {
+                
+                todosLosObstaculos.splice(i, 1);
+                i--;
+    
+                miFutbolista.vidas -= 1;
+                console.log("Vidas restantes: " + miFutbolista.vidas);
+    
+            }
+        }
+    }
+
+    function gameOver(){
+
+        if(miFutbolista.vidas == 0){
+
+            clearInterval(idAnimacion)
+            clearInterval(idMovimientoPersonaje)
+        }
+
+    }
+    
+    
 	// ---------------------- Animación general de objetos ---------------------- //
 
     function animar() {
@@ -138,7 +181,9 @@ window.onload = function () {
             }
         });
 
+        colisionFubolista();
         pintaFutbolista();
+        gameOver();
     }
 
 	// ---------------------- Captura de teclas ---------------------- //
@@ -175,9 +220,9 @@ window.onload = function () {
 
     generaDatosObstaculos();
 
-    setInterval(animar, 1000 / 30);
+    idAnimacion = setInterval(animar, 1000 / 30);
 
-    setInterval(alternarAnimacionMovimiento, 1000 / 6);
+    idMovimientoPersonaje = setInterval(alternarAnimacionMovimiento, 1000 / 6);
 };
 
 
