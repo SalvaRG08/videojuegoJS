@@ -14,14 +14,18 @@ window.onload = function () {
     let ctx;
     let boton;
 
-    let xIzquierda, xDerecha, yUp, yDown;
+    let xIzquierda, xDerecha, yUp, yDown, disparar;
 
     let posicion = 0;
     let inicial = 0;
 
     let miFutbolista;
     let imagenPersonaje;
+
     let imagenCampo;
+
+    let miDisparo;
+    let imagenBalon;
 
     let todosLosObstaculos = [];
 
@@ -58,6 +62,15 @@ window.onload = function () {
         this.haAcabado = false;
         this.tamañoX = 25;
         this.tamañoY = 25;
+    }
+
+    function Disparo(x_3, y_3, velocidad_3) {
+        this.x = x_3;
+        this.y = y_3;
+        this.velocidad = velocidad_3;
+        this.haAcabado = false;
+        this.tamañoX = 15;
+        this.tamañoY = 15;
     }
 
     imagenCampo = new Image();
@@ -144,6 +157,7 @@ window.onload = function () {
 	// ---------------------- Codigo obstaculos ---------------------- //
 
     Obstaculos.prototype.pintarObstaculos = function () {
+        ctx.fillStyle = "#FF0000";
         ctx.fillRect(this.x, this.y, this.tamañoX, this.tamañoY);
     };
 
@@ -158,6 +172,43 @@ window.onload = function () {
             let velocidad = 0.5 + Math.random() * 2;
             let miObstaculo = new Obstaculos(TOPEDERECHA, y, velocidad);
             todosLosObstaculos.push(miObstaculo);
+        }
+    }
+
+	// ---------------------- Codigo disparo ---------------------- //
+
+    
+
+    Disparo.prototype.pintarDisparo = function() {
+        ctx.drawImage(
+            Disparo.prototype.imagenBalon, 
+            0, 0,                          
+            this.tamañoX, this.tamañoY,    
+            this.x, this.y,                
+            this.tamañoX, this.tamañoY
+        );
+    };
+
+    Disparo.prototype.moverDisparo = function () {
+        this.x = this.x + this.velocidad;
+        if (this.x >= TOPEDERECHA){
+            this.haAcabado = true;
+            disparar = false; // de forma que no hay disparo continuo y se permite el siguiente disparo
+        } 
+    };
+
+    function generaDatosDisparo() {
+        let y = miFutbolista.y;
+        let x = miFutbolista.x + miFutbolista.tamañoX;
+        let velocidad = 5;
+        miDisparo = new Disparo(x, y, velocidad);
+        
+    }
+    
+    function pintarDisparo() {
+        if (disparar && miDisparo) {
+            miDisparo.pintarDisparo();
+            miDisparo.moverDisparo();
         }
     }
 
@@ -211,13 +262,14 @@ window.onload = function () {
         ctx.clearRect(0, 0, 600, 400);
         ctx.drawImage(imagenCampo, 0, 0, 600, 400); 
 
-        ctx.fillStyle = "#FF0000";
         todosLosObstaculos.forEach((obstaculo) => {
             if (!obstaculo.haAcabado) {
                 obstaculo.pintarObstaculos();
                 obstaculo.moverObstaculo();
             }
         });
+
+        pintarDisparo();
 
         colisionFubolista();
         pintaFutbolista();
@@ -228,24 +280,34 @@ window.onload = function () {
 
     document.addEventListener("keydown", activaMovimiento, false);
     document.addEventListener("keyup", desactivaMovimiento, false);
+    document.addEventListener("keypress", espacio, false);
 
     function activaMovimiento(evt) {
         switch (evt.keyCode) {
             case 37: xIzquierda = true; break;
-            case 39: xDerecha = true; break;
-            case 38: yUp = true; break;
-            case 40: yDown = true; break;
+            case 39: xDerecha = true;  break;
+            case 38: yUp = true;  break;
+            case 40: yDown = true;  break;
         }
     }
 
     function desactivaMovimiento(evt) {
         switch (evt.keyCode) {
-            case 37: xIzquierda = false; break;
-            case 39: xDerecha = false; break;
-            case 38: yUp = false; break;
-            case 40: yDown = false; break;
+            case 37: xIzquierda = false;  break;
+            case 39: xDerecha = false;  break;
+            case 38: yUp = false;  break;
+            case 40: yDown = false;  break;
         }
     }
+
+    function espacio(evt){
+
+		if (evt.keyCode === 32 && !disparar) {
+
+			  disparar = true;
+              generaDatosDisparo();
+		}
+	}
 
     function comenzar(){
         iniciarVariables();
@@ -255,6 +317,10 @@ window.onload = function () {
         imagenPersonaje = new Image();
         imagenPersonaje.src = "assets/sprite/Characters.png";
         Futbolista.prototype.imagenPersonaje = imagenPersonaje;
+
+        imagenBalon = new Image();
+        imagenBalon.src = "assets/sprite/balon.png";
+        Disparo.prototype.imagenBalon = imagenBalon;
 
         miFutbolista = new Futbolista(x, y);
 
