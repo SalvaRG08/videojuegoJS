@@ -104,7 +104,7 @@ window.onload = function () {
 			this.y = TOPEABAJO;
 			/* reproducirAudio(); */	
 		}
-	}	
+	}	   
 
     function pintaFutbolista() {
 
