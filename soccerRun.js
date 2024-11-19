@@ -8,10 +8,11 @@ window.onload = function () {
 
     const NUMEROOBSTACULOS = 5;
 
-    let x = 100;
-    let y = 350;
+    let x = 50;
+    let y = 200;
     let canvas;
     let ctx;
+    let boton;
 
     let xIzquierda, xDerecha, yUp, yDown;
 
@@ -24,6 +25,15 @@ window.onload = function () {
 
     let todosLosObstaculos = [];
 
+    // ---------------------- Iniciar variables ---------------------- //
+
+        function iniciarVariables(){
+            boton.disabled=true;
+
+            canvas = document.getElementById("miCanvas");
+
+            todosLosObstaculos = [];
+        }
 	// ---------------------- Objetos ---------------------- //
 
     function Futbolista(x_, y_) {
@@ -55,21 +65,46 @@ window.onload = function () {
     
 	// ---------------------- Codigo futbolista ---------------------- //
 
-    Futbolista.prototype.generaPosicionDerecha = function () {
-        this.x = Math.min(this.x + this.velocidad, TOPEDERECHA);
-    };
-
-    Futbolista.prototype.generaPosicionIzquierda = function () {
-        this.x = Math.max(this.x - this.velocidad, TOPEIZQUIERDA);
-    };
-
-    Futbolista.prototype.generaPosicionArriba = function () {
-        this.y = Math.max(this.y - this.velocidad, TOPEIZQUIERDA);
-    };
-
-    Futbolista.prototype.generaPosicionAbajo = function () {
-        this.y = Math.min(this.y + this.velocidad, TOPEABAJO);
-    };
+    Futbolista.prototype.generaPosicionDerecha = function() {
+		this.x = this.x + this.velocidad;
+		
+		if (this.x > TOPEDERECHA) {
+			
+			this.x = TOPEDERECHA;   
+			/* reproducirAudio(); */	
+		}		
+	}
+	
+	Futbolista.prototype.generaPosicionIzquierda = function() {
+		
+		this.x = this.x - this.velocidad;
+		if (this.x < 0) {
+			
+			this.x = 0;	   
+			/* reproducirAudio();	*/
+		}
+	}
+	
+	Futbolista.prototype.generaPosicionArriba = function() {
+		
+		this.y = this.y - this.velocidad;
+		if (this.y < 0) {
+			
+			this.y = 0;	
+			/* reproducirAudio();	*/
+		}
+	}	
+	
+	
+	Futbolista.prototype.generaPosicionAbajo = function() {
+		
+		this.y = this.y + this.velocidad;
+		if (this.y > TOPEABAJO) {
+			
+			this.y = TOPEABAJO;
+			/* reproducirAudio(); */	
+		}
+	}	
 
     function pintaFutbolista() {
 
@@ -164,6 +199,7 @@ window.onload = function () {
 
             clearInterval(idAnimacion)
             clearInterval(idMovimientoPersonaje)
+            boton.disabled=false;
         }
 
     }
@@ -211,20 +247,27 @@ window.onload = function () {
         }
     }
 
-    canvas = document.getElementById("miCanvas");
-    ctx = canvas.getContext("2d");
+    function comenzar(){
+        iniciarVariables();
 
-    imagenPersonaje = new Image();
-    imagenPersonaje.src = "assets/sprite/Characters.png";
-    Futbolista.prototype.imagenPersonaje = imagenPersonaje;
+        ctx = canvas.getContext("2d");
 
-    miFutbolista = new Futbolista(x, y);
+        imagenPersonaje = new Image();
+        imagenPersonaje.src = "assets/sprite/Characters.png";
+        Futbolista.prototype.imagenPersonaje = imagenPersonaje;
 
-    generaDatosObstaculos();
+        miFutbolista = new Futbolista(x, y);
 
-    idAnimacion = setInterval(animar, 1000 / 30);
+        generaDatosObstaculos();
 
-    idMovimientoPersonaje = setInterval(alternarAnimacionMovimiento, 1000 / 6);
+        idAnimacion = setInterval(animar, 1000 / 30);
+
+        idMovimientoPersonaje = setInterval(alternarAnimacionMovimiento, 1000 / 6);
+    }
+
+    // CÓDIGO PRINCIPAL
+	 boton=document.getElementById("nueva");
+	 boton.onclick=comenzar;
 };
 
 
