@@ -14,7 +14,7 @@ window.onload = function () {
     let ctx;
     let boton;
 
-    let xIzquierda, xDerecha, yUp, yDown, disparar;
+    let xIzquierda, xDerecha, yUp, yDown;
 
     let posicion = 0;
     let inicial = 0;
@@ -28,6 +28,7 @@ window.onload = function () {
     let imagenBalon;
 
     let todosLosObstaculos = [];
+    let bateriaDisparos = [];
 
     // ---------------------- Iniciar variables ---------------------- //
 
@@ -49,7 +50,7 @@ window.onload = function () {
             [30, 210], [30, 210],
             [27, 90], [27, 90],
         ];
-        this.velocidad = 2;
+        this.velocidad = 3;
         this.tamañoX = 23;
         this.tamañoY = 40;
         this.vidas = 2;
@@ -155,6 +156,7 @@ window.onload = function () {
     }
 
 	// ---------------------- Codigo obstaculos ---------------------- //
+    // QUE SEAN PELOTAS DE FUEGO O ALGO ASI
 
     Obstaculos.prototype.pintarObstaculos = function () {
         ctx.fillStyle = "#FF0000";
@@ -163,7 +165,7 @@ window.onload = function () {
 
     Obstaculos.prototype.moverObstaculo = function () {
         this.x = this.x - this.velocidad;
-        if (this.x <= TOPEIZQUIERDA) this.haAcabado = true;
+        if (this.x <= TOPEIZQUIERDA - 30) this.haAcabado = true;
     };
 
     function generaDatosObstaculos() {
@@ -177,11 +179,9 @@ window.onload = function () {
 
 	// ---------------------- Codigo disparo ---------------------- //
 
-    
-
     Disparo.prototype.pintarDisparo = function() {
         ctx.drawImage(
-            Disparo.prototype.imagenBalon, 
+            miDisparo.imagenBalon, 
             0, 0,                          
             this.tamañoX, this.tamañoY,    
             this.x, this.y,                
@@ -191,25 +191,32 @@ window.onload = function () {
 
     Disparo.prototype.moverDisparo = function () {
         this.x = this.x + this.velocidad;
-        if (this.x >= TOPEDERECHA){
+        if (this.x >= TOPEDERECHA + 40){
             this.haAcabado = true;
-            disparar = false; // de forma que no hay disparo continuo y se permite el siguiente disparo
+            /* disparar = false; // de forma que no hay disparo continuo y se permite el siguiente disparo 
+            console.log(disparar)*/
         } 
     };
 
     function generaDatosDisparo() {
-        let y = miFutbolista.y;
-        let x = miFutbolista.x + miFutbolista.tamañoX;
-        let velocidad = 5;
+        let y = miFutbolista.y + 25;
+        let x = miFutbolista.x + 10;
+        let velocidad = 7;
         miDisparo = new Disparo(x, y, velocidad);
-        
+        bateriaDisparos.push(miDisparo)
     }
     
-    function pintarDisparo() {
-        if (disparar && miDisparo) {
-            miDisparo.pintarDisparo();
-            miDisparo.moverDisparo();
-        }
+    function pintarDisparos() {
+        bateriaDisparos.forEach((disparo, i) => {
+            disparo.pintarDisparo();
+            disparo.moverDisparo();
+
+            if(disparo.haAcabado){
+                bateriaDisparos.splice(i, 1)
+            }
+        });
+            
+        
     }
 
     // ---------------------- Colision de personaje ---------------------- //
@@ -244,12 +251,47 @@ window.onload = function () {
         }
     }
 
+    // ---------------------- Colision de balon ---------------------- //
+
+    function colisionBalon(){
+
+        bateriaDisparos.forEach((disparo, j) => {
+            let bordeIzqB = disparo.x;
+            let bordeDerB = disparo.x + disparo.tamañoX;
+            let bordeDownB = disparo.y;
+            let bordeUpB = disparo.y + disparo.tamañoY;
+
+            for (let i = 0; i < todosLosObstaculos.length; i++) {
+                let bordeIzqO = todosLosObstaculos[i].x;
+                let bordeDerO = todosLosObstaculos[i].x + todosLosObstaculos[i].tamañoX;
+                let bordeDownO = todosLosObstaculos[i].y;
+                let bordeUpO = todosLosObstaculos[i].y + todosLosObstaculos[i].tamañoY;
+        
+                if (
+                    bordeDerB > bordeIzqO &&
+                    bordeIzqB < bordeDerO &&
+                    bordeUpB > bordeDownO &&
+                    bordeDownB < bordeUpO
+                ) {
+
+                    bateriaDisparos.splice(j,1)
+                    todosLosObstaculos.splice(i, 1);
+
+                }
+            }
+        });
+        
+    }
+
+    // ---------------------- Game Over ---------------------- //
+
     function gameOver(){
 
         if(miFutbolista.vidas == 0){
 
             clearInterval(idAnimacion)
             clearInterval(idMovimientoPersonaje)
+           
             boton.disabled=false;
         }
 
@@ -268,11 +310,13 @@ window.onload = function () {
                 obstaculo.moverObstaculo();
             }
         });
-
-        pintarDisparo();
-
+        
+        
+        pintarDisparos();
+        
         colisionFubolista();
         pintaFutbolista();
+        colisionBalon();
         gameOver();
     }
 
@@ -295,17 +339,18 @@ window.onload = function () {
         switch (evt.keyCode) {
             case 37: xIzquierda = false;  break;
             case 39: xDerecha = false;  break;
-            case 38: yUp = false;  break;
+            case 38: yUp = false; break;
             case 40: yDown = false;  break;
         }
     }
 
     function espacio(evt){
 
-		if (evt.keyCode === 32 && !disparar) {
+		if (evt.keyCode === 32 /* && !disparar */) {
 
-			  disparar = true;
+			  /* disparar = true; */ 
               generaDatosDisparo();
+              /* console.log(disparar) */
 		}
 	}
 
