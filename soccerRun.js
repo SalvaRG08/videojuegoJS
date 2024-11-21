@@ -5,8 +5,10 @@ window.onload = function () {
     const TOPEIZQUIERDA = 0;
     const TOPEDERECHA = 577;
     const TOPEABAJO = 360;
+    const TOPECENTRO = 277;
 
-    const NUMEROOBSTACULOS = 5;
+    const NUMEROOBSTACULOS = 15;
+    const NUMEROPORTERIAS = 5
 
     let x = 50;
     let y = 200;
@@ -16,7 +18,8 @@ window.onload = function () {
 
     let xIzquierda, xDerecha, yUp, yDown;
 
-    let posicion = 0;
+    let posicionObstaculo = 0;
+    let posicionFutbolista = 0;
     let inicial = 0;
 
     let miFutbolista;
@@ -27,9 +30,11 @@ window.onload = function () {
     let miDisparo;
     let imagenBalon;
     let imagenFuego;
+    let imagenPorteria;
 
     let todosLosObstaculos = [];
     let bateriaDisparos = [];
+    let todasLasPorterias = [];
 
     // ---------------------- Iniciar variables ---------------------- //
 
@@ -39,7 +44,10 @@ window.onload = function () {
             canvas = document.getElementById("miCanvas");
 
             todosLosObstaculos = [];
+            bateriaDisparos = [];
+            todasLasPorterias = [];
         }
+
 	// ---------------------- Objetos ---------------------- //
 
     function Futbolista(x_, y_) {
@@ -54,15 +62,16 @@ window.onload = function () {
         this.velocidad = 3;
         this.tamañoX = 23;
         this.tamañoY = 40;
-        this.vidas = 2;
+        this.vidas = 5;
+        this.puntos = 0;
     }
 
     function Obstaculos(x_2, y_2, velocidad_2) {
         this.x = x_2;
         this.y = y_2;
-        /* this.animacionObstaculo = [
-            
-        ] */
+        this.animacionObstaculo = [
+            [0, 77], [25, 77]
+        ] 
         this.velocidad = velocidad_2;
         this.haAcabado = false;
         this.tamañoX = 25;
@@ -78,6 +87,13 @@ window.onload = function () {
         this.tamañoY = 15;
     }
 
+    function Porteria(x_4, y_4){
+        this.x = x_4;
+        this.y = y_4;
+        this.tamañoX = 50;
+        this.tamañoY = 50;
+    }
+
     imagenCampo = new Image();
     imagenCampo.src = "assets/sprite/Pitch2.png";
     
@@ -86,9 +102,9 @@ window.onload = function () {
     Futbolista.prototype.generaPosicionDerecha = function() {
 		this.x = this.x + this.velocidad;
 		
-		if (this.x > TOPEDERECHA) {
+		if (this.x > TOPECENTRO) {
 			
-			this.x = TOPEDERECHA;   
+			this.x = TOPECENTRO;   
 			/* reproducirAudio(); */	
 		}		
 	}
@@ -133,8 +149,8 @@ window.onload = function () {
 
         ctx.drawImage(
             miFutbolista.imagenPersonaje,
-            miFutbolista.animacionFutbolista[posicion][0],
-            miFutbolista.animacionFutbolista[posicion][1],
+            miFutbolista.animacionFutbolista[posicionFutbolista][0],
+            miFutbolista.animacionFutbolista[posicionFutbolista][1],
             miFutbolista.tamañoX,
             miFutbolista.tamañoY,
             miFutbolista.x,
@@ -155,7 +171,7 @@ window.onload = function () {
             inicial = (inicial == 0) ? 4 : (inicial == 2) ? 6 : inicial;
         }
     
-        posicion = inicial + (posicion + 1) % 2;
+        posicionFutbolista = inicial + (posicionFutbolista + 1) % 2;
     
     }
 
@@ -169,10 +185,14 @@ window.onload = function () {
     Obstaculos.prototype.pintarObstaculo = function() {
             ctx.drawImage(
                 this.imagenFuego, 
-                0, 0,                          
-                this.tamañoX, this.tamañoY,    
-                this.x, this.y,                
-                this.tamañoX, this.tamañoY
+                this.animacionObstaculo[posicionObstaculo][0],
+                this.animacionObstaculo[posicionObstaculo][1],                          
+                this.tamañoX, 
+                this.tamañoY,    
+                this.x, 
+                this.y,                
+                this.tamañoX, 
+                this.tamañoY
             );
         };
 
@@ -191,11 +211,61 @@ window.onload = function () {
     }
 
     function pintarObstaculos(){
-        todosLosObstaculos.forEach((obstaculo, k) =>{
+        todosLosObstaculos.forEach(obstaculo =>{
             obstaculo.pintarObstaculo();
             obstaculo.moverObstaculo();
         });
     }
+
+    function alternarAnimacionObstaculo(){
+        posicionObstaculo = (posicionObstaculo + 1) % 2;
+    }
+
+    // ---------------------- Codigo porteria ---------------------- //
+
+    Porteria.prototype.pintarPorteria = function(){
+        ctx.drawImage(
+            this.imagenPorteria, 
+            0, 0,                          
+            this.tamañoX, 
+            this.tamañoY,    
+            this.x, 
+            this.y,                
+            this.tamañoX, 
+            this.tamañoY
+        );
+    }
+
+    function generaDatosPorterias(){
+        for (let i = 0; i < NUMEROPORTERIAS; i++) {
+            let y = Math.random() * TOPEABAJO;
+            let x = TOPECENTRO + 50 + Math.random() * (TOPEDERECHA - TOPECENTRO);
+            let miPorteria = new Porteria(x, y);
+            todasLasPorterias.push(miPorteria);
+        }
+    } 
+
+    function pintarPorterias(){
+        todasLasPorterias.forEach(porteria =>{
+            porteria.pintarPorteria();
+        })
+    }
+
+    function regenerarPorterias() {
+        // Limpiar las porterías actuales
+        todasLasPorterias = [];
+    
+        // Generar nuevas posiciones para las porterías
+        for (let i = 0; i < NUMEROPORTERIAS; i++) {
+            let y = Math.random() * TOPEABAJO; 
+            let x = TOPECENTRO +50 + Math.random() * (TOPEDERECHA - TOPECENTRO); 
+            let miPorteria = new Porteria(x, y);
+            todasLasPorterias.push(miPorteria);
+        }
+    
+        console.log("Porterías regeneradas");
+    }
+    
 
 	// ---------------------- Codigo disparo ---------------------- //
 
@@ -310,7 +380,10 @@ window.onload = function () {
         if(miFutbolista.vidas == 0){
 
             clearInterval(idAnimacion)
+            clearInterval(idMovimientoObstaculo)
             clearInterval(idMovimientoPersonaje)
+            clearInterval(idRegenerarPorterias)
+            
            
             boton.disabled=false;
         }
@@ -331,6 +404,7 @@ window.onload = function () {
             }
         }); */
 
+        pintarPorterias();
         pintarObstaculos();
         /* moverObstaculo();*/   
         
@@ -396,13 +470,20 @@ window.onload = function () {
         imagenFuego.src = "assets/sprite/explosion3.png";
         Obstaculos.prototype.imagenFuego = imagenFuego;
 
+        imagenPorteria = new Image();
+        imagenPorteria.src = "assets/sprite/porteria.png"
+        Porteria.prototype.imagenPorteria = imagenPorteria;
+
         miFutbolista = new Futbolista(x, y);
 
+        generaDatosPorterias();
         generaDatosObstaculos();
 
         idAnimacion = setInterval(animar, 1000 / 30);
-
+        idMovimientoObstaculo = setInterval(alternarAnimacionObstaculo, 1000/6 );
         idMovimientoPersonaje = setInterval(alternarAnimacionMovimiento, 1000 / 6);
+        idRegenerarPorterias = setInterval(regenerarPorterias, 1000);
+
     }
 
     // CÓDIGO PRINCIPAL
