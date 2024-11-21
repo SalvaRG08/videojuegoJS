@@ -26,6 +26,7 @@ window.onload = function () {
 
     let miDisparo;
     let imagenBalon;
+    let imagenFuego;
 
     let todosLosObstaculos = [];
     let bateriaDisparos = [];
@@ -59,6 +60,9 @@ window.onload = function () {
     function Obstaculos(x_2, y_2, velocidad_2) {
         this.x = x_2;
         this.y = y_2;
+        /* this.animacionObstaculo = [
+            
+        ] */
         this.velocidad = velocidad_2;
         this.haAcabado = false;
         this.tamañoX = 25;
@@ -158,10 +162,19 @@ window.onload = function () {
 	// ---------------------- Codigo obstaculos ---------------------- //
     // QUE SEAN PELOTAS DE FUEGO O ALGO ASI
 
-    Obstaculos.prototype.pintarObstaculos = function () {
+    /* Obstaculos.prototype.pintarObstaculos = function () {
         ctx.fillStyle = "#FF0000";
         ctx.fillRect(this.x, this.y, this.tamañoX, this.tamañoY);
-    };
+    }; */
+    Obstaculos.prototype.pintarObstaculo = function() {
+            ctx.drawImage(
+                this.imagenFuego, 
+                0, 0,                          
+                this.tamañoX, this.tamañoY,    
+                this.x, this.y,                
+                this.tamañoX, this.tamañoY
+            );
+        };
 
     Obstaculos.prototype.moverObstaculo = function () {
         this.x = this.x - this.velocidad;
@@ -177,11 +190,18 @@ window.onload = function () {
         }
     }
 
+    function pintarObstaculos(){
+        todosLosObstaculos.forEach((obstaculo, k) =>{
+            obstaculo.pintarObstaculo();
+            obstaculo.moverObstaculo();
+        });
+    }
+
 	// ---------------------- Codigo disparo ---------------------- //
 
     Disparo.prototype.pintarDisparo = function() {
         ctx.drawImage(
-            miDisparo.imagenBalon, 
+            this.imagenBalon, 
             0, 0,                          
             this.tamañoX, this.tamañoY,    
             this.x, this.y,                
@@ -221,7 +241,7 @@ window.onload = function () {
 
     // ---------------------- Colision de personaje ---------------------- //
 
-    function colisionFubolista() {
+    function colisionFutbolista() {
 
         let bordeIzqF = miFutbolista.x;
         let bordeDerF = miFutbolista.x + miFutbolista.tamañoX;
@@ -304,19 +324,24 @@ window.onload = function () {
         ctx.clearRect(0, 0, 600, 400);
         ctx.drawImage(imagenCampo, 0, 0, 600, 400); 
 
-        todosLosObstaculos.forEach((obstaculo) => {
+        /* todosLosObstaculos.forEach((obstaculo) => {
             if (!obstaculo.haAcabado) {
                 obstaculo.pintarObstaculos();
                 obstaculo.moverObstaculo();
             }
-        });
-        
+        }); */
+
+        pintarObstaculos();
+        /* moverObstaculo();*/   
         
         pintarDisparos();
         
-        colisionFubolista();
+        colisionFutbolista();
         pintaFutbolista();
         colisionBalon();
+
+        document.getElementById("vidas").innerHTML = "Vidas: " + miFutbolista.vidas;
+
         gameOver();
     }
 
@@ -366,6 +391,10 @@ window.onload = function () {
         imagenBalon = new Image();
         imagenBalon.src = "assets/sprite/balon.png";
         Disparo.prototype.imagenBalon = imagenBalon;
+
+        imagenFuego = new Image();
+        imagenFuego.src = "assets/sprite/explosion3.png";
+        Obstaculos.prototype.imagenFuego = imagenFuego;
 
         miFutbolista = new Futbolista(x, y);
 
