@@ -366,6 +366,27 @@ window.onload = function () {
 
                     bateriaDisparos.splice(j,1)
                     todosLosObstaculos.splice(i, 1);
+                    miFutbolista.puntos += 25;
+
+                }
+            }
+
+            for (let i = 0; i < todasLasPorterias.length; i++){
+                let bordeIzqP = todasLasPorterias[i].x;
+                let bordeDerP = todasLasPorterias[i].x + todasLasPorterias[i].tamañoX;
+                let bordeDownP = todasLasPorterias[i].y;
+                let bordeUpP = todasLasPorterias[i].y + todasLasPorterias[i].tamañoY;
+
+                if (
+                    bordeDerB > bordeIzqP &&
+                    bordeIzqB < bordeDerP &&
+                    bordeUpB > bordeDownP &&
+                    bordeDownB < bordeUpP
+                ) {
+
+                    bateriaDisparos.splice(j,1)
+                    todasLasPorterias.splice(i, 1);
+                    miFutbolista.puntos +=100;
 
                 }
             }
@@ -415,6 +436,7 @@ window.onload = function () {
         colisionBalon();
 
         document.getElementById("vidas").innerHTML = "Vidas: " + miFutbolista.vidas;
+        document.getElementById("puntos").innerHTML = "Puntos: " + miFutbolista.puntos;
 
         gameOver();
     }
@@ -482,7 +504,7 @@ window.onload = function () {
         idAnimacion = setInterval(animar, 1000 / 30);
         idMovimientoObstaculo = setInterval(alternarAnimacionObstaculo, 1000/6 );
         idMovimientoPersonaje = setInterval(alternarAnimacionMovimiento, 1000 / 6);
-        idRegenerarPorterias = setInterval(regenerarPorterias, 1000);
+        idRegenerarPorterias = setInterval(regenerarPorterias, 4000);
 
     }
 
