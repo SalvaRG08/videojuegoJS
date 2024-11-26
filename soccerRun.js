@@ -36,6 +36,15 @@ window.onload = function () {
     let bateriaDisparos = [];
     let todasLasPorterias = [];
 
+    // ---------------------- Audio ---------------------- //
+
+    function reproducirAudio(audio_) {
+
+		// Si hay un sonido reproduciéndose retrocedemos su reproducción hasta 0 para que vuelva a sonar desde el principio. 
+		audio_.currentTime = 0;
+		audio_.play();	
+	}	
+
     // ---------------------- Iniciar variables ---------------------- //
 
         function iniciarVariables(){
@@ -99,13 +108,15 @@ window.onload = function () {
     
 	// ---------------------- Codigo futbolista ---------------------- //
 
+    Futbolista.prototype.audio = new Audio("assets/audio/choque.mp3")
+
     Futbolista.prototype.generaPosicionDerecha = function() {
 		this.x = this.x + this.velocidad;
 		
 		if (this.x > TOPECENTRO) {
 			
 			this.x = TOPECENTRO;   
-			/* reproducirAudio(); */	
+	
 		}		
 	}
 	
@@ -115,7 +126,7 @@ window.onload = function () {
 		if (this.x < 0) {
 			
 			this.x = 0;	   
-			/* reproducirAudio();	*/
+
 		}
 	}
 	
@@ -125,7 +136,7 @@ window.onload = function () {
 		if (this.y < 0) {
 			
 			this.y = 0;	
-			/* reproducirAudio();	*/
+
 		}
 	}	
 	
@@ -136,7 +147,7 @@ window.onload = function () {
 		if (this.y > TOPEABAJO) {
 			
 			this.y = TOPEABAJO;
-			/* reproducirAudio(); */	
+	
 		}
 	}	   
 
@@ -182,6 +193,9 @@ window.onload = function () {
         ctx.fillStyle = "#FF0000";
         ctx.fillRect(this.x, this.y, this.tamañoX, this.tamañoY);
     }; */
+
+    Obstaculos.prototype.audio = new Audio("assets/audio/mecha.mp3")
+
     Obstaculos.prototype.pintarObstaculo = function() {
             ctx.drawImage(
                 this.imagenFuego, 
@@ -222,6 +236,8 @@ window.onload = function () {
     }
 
     // ---------------------- Codigo porteria ---------------------- //
+
+    Porteria.prototype.audio = new Audio("assets/audio/coin.mp3");
 
     Porteria.prototype.pintarPorteria = function(){
         ctx.drawImage(
@@ -269,6 +285,9 @@ window.onload = function () {
 
 	// ---------------------- Codigo disparo ---------------------- //
 
+    Disparo.prototype.audio = new Audio("assets/audio/chute.mp3");
+
+
     Disparo.prototype.pintarDisparo = function() {
         ctx.drawImage(
             this.imagenBalon, 
@@ -294,6 +313,7 @@ window.onload = function () {
         let velocidad = 7;
         miDisparo = new Disparo(x, y, velocidad);
         bateriaDisparos.push(miDisparo)
+        reproducirAudio(miDisparo.audio);
     }
     
     function pintarDisparos() {
@@ -331,6 +351,7 @@ window.onload = function () {
                 bordeDownF < bordeUpO
             ) {
                 
+                reproducirAudio(miFutbolista.audio)
                 todosLosObstaculos.splice(i, 1);
                 i--;
     
@@ -343,14 +364,15 @@ window.onload = function () {
 
     // ---------------------- Colision de balon ---------------------- //
 
-    function colisionBalon(){
+    function colisionBalon(){ // Separar colsiones para correcto funcionamient de borrado de balon
 
         bateriaDisparos.forEach((disparo, j) => {
             let bordeIzqB = disparo.x;
             let bordeDerB = disparo.x + disparo.tamañoX;
             let bordeDownB = disparo.y;
             let bordeUpB = disparo.y + disparo.tamañoY;
-
+            
+            //colision con obstaculos 
             for (let i = 0; i < todosLosObstaculos.length; i++) {
                 let bordeIzqO = todosLosObstaculos[i].x;
                 let bordeDerO = todosLosObstaculos[i].x + todosLosObstaculos[i].tamañoX;
@@ -364,15 +386,18 @@ window.onload = function () {
                     bordeDownB < bordeUpO
                 ) {
 
+                    reproducirAudio(todosLosObstaculos[i].audio)
                     bateriaDisparos.splice(j,1)
                     todosLosObstaculos.splice(i, 1);
                     miFutbolista.puntos += 25;
 
                 }
             }
-
+            
+            //colision con porterias
+            
             for (let i = 0; i < todasLasPorterias.length; i++){
-                let bordeIzqP = todasLasPorterias[i].x;
+                let bordeIzqP = todasLasPorterias[i].x + 17; // ajuste para el efecto de gol
                 let bordeDerP = todasLasPorterias[i].x + todasLasPorterias[i].tamañoX;
                 let bordeDownP = todasLasPorterias[i].y;
                 let bordeUpP = todasLasPorterias[i].y + todasLasPorterias[i].tamañoY;
@@ -384,10 +409,11 @@ window.onload = function () {
                     bordeDownB < bordeUpP
                 ) {
 
+                    reproducirAudio(todasLasPorterias[i].audio);
                     bateriaDisparos.splice(j,1)
                     todasLasPorterias.splice(i, 1);
                     miFutbolista.puntos +=100;
-
+            
                 }
             }
         });
@@ -450,29 +476,41 @@ window.onload = function () {
     function activaMovimiento(evt) {
         switch (evt.keyCode) {
             case 37: xIzquierda = true; break;
+            case 65: xIzquierda = true; break;
             case 39: xDerecha = true;  break;
+            case 68: xDerecha = true; break;
             case 38: yUp = true;  break;
+            case 87: yUp = true;  break;
             case 40: yDown = true;  break;
+            case 83: yDown = true;  break;
         }
     }
 
     function desactivaMovimiento(evt) {
         switch (evt.keyCode) {
             case 37: xIzquierda = false;  break;
+            case 65: xIzquierda = false; break;
             case 39: xDerecha = false;  break;
+            case 68: xDerecha = false; break;
             case 38: yUp = false; break;
+            case 87: yUp = false;  break;
             case 40: yDown = false;  break;
+            case 83: yDown = false;  break;
         }
     }
 
     function espacio(evt){
 
-		if (evt.keyCode === 32 /* && !disparar */) {
-
-			  /* disparar = true; */ 
+        switch (evt.keyCode){
+            case 32: generaDatosDisparo();
+            case 0: generaDatosDisparo();
+        }
+        
+		/* if (evt.keyCode === 32) {
+ 
               generaDatosDisparo();
-              /* console.log(disparar) */
-		}
+		}*/
+
 	}
 
     function comenzar(){
